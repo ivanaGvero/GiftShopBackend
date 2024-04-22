@@ -1,8 +1,10 @@
   package com.example.demo.controller;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
+import com.example.demo.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,11 +31,20 @@ public class ReviewController {
 
 	 @Autowired
 	    private ReviewRepository reviewRepository;
+
+	@Autowired
+	private ProductRepository productRepository;
 	 
 	 @GetMapping("/review")
 	    public Collection<Review> getAllReview(){
-			return reviewRepository.findAll();} 
-	 
+			return reviewRepository.findAll();}
+
+	@GetMapping("/review/product/{id}")
+	public Collection<Review> getReviewsByProductId(@PathVariable("id") Integer id) {
+		 var product = productRepository.findById(id).get();
+		return reviewRepository.findByProduct(product);
+	}
+
 	 @GetMapping("/review/{id}")
 	    public Review getReview(@PathVariable("id") Integer id) {
 		     Optional<Review> optionalReview = reviewRepository.findById(id);

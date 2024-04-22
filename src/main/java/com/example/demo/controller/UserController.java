@@ -3,9 +3,9 @@ package com.example.demo.controller;
 import java.util.Collection;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,10 +23,16 @@ import com.example.demo.repository.UserRepository;
 @RestController
 public class UserController {
 
-	@Autowired
-    private UserRepository userRepository;
-	
-    @GetMapping("/user")
+    private final UserRepository userRepository;
+	private final PasswordEncoder passwordEncoder;
+
+	public UserController(UserRepository userRepository,
+						  PasswordEncoder passwordEncoder) {
+		this.userRepository = userRepository;
+		this.passwordEncoder = passwordEncoder;
+	}
+
+	@GetMapping("/user")
 	    public Collection<User> getAllUser(){
 			return userRepository.findAll();}
 	 
@@ -41,16 +47,30 @@ public class UserController {
 	     }
 	 }
 
-	 @PostMapping("/user")
-		public ResponseEntity<User> postUser(@RequestBody User user){
-			if (!userRepository.existsById(user.getUserId())) {
-				userRepository.save(user);
-				return new ResponseEntity<User>(HttpStatus.OK);
+	@PostMapping("/user")
+	public ResponseEntity<User> postUser(@RequestBody User user) {
+		if (!userRepository.existsById(user.getUserId())) {
+			if (userRepository.existsByUsername(user.getUsername())) {
+				return new ResponseEntity<User>(HttpStatus.CONFLICT);
 			}
-			return new ResponseEntity<User>(HttpStatus.CONFLICT);
+
+			user.setPassword(passwordEncoder.encode(user.getPassword()));
+
+			try {
+				userRepository.save(user);
+			} catch (Exception e) {
+				e.printStackTrace();
+				return new ResponseEntity<User>(HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+
+			return new ResponseEntity<User>(HttpStatus.OK);
 		}
-		
-		@PutMapping("/user")
+
+		return new ResponseEntity<User>(HttpStatus.CONFLICT);
+	}
+
+
+	@PutMapping("/user")
 		public ResponseEntity<User> putUser(@RequestBody User user) {
 			if (!userRepository.existsById(user.getUserId())){
 				return new ResponseEntity<User>(HttpStatus.NO_CONTENT);

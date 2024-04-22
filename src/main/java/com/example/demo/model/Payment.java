@@ -18,8 +18,7 @@ import jakarta.persistence.Table;
 public class Payment {
 
 	@Id
-	@SequenceGenerator(name="PAYMENT_ID_GENERATOR", sequenceName="PAYMENT_SEQ", allocationSize = 1)
-	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="PAYMENT_ID_GENERATOR")
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int paymentId;
 	
 	private String paymentMethod;

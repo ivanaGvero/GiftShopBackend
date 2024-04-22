@@ -1,7 +1,10 @@
 package com.example.demo.model;
 
 import java.sql.Date;
+import java.util.ArrayList;
+import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import jakarta.persistence.*;
@@ -12,8 +15,7 @@ import jakarta.persistence.*;
 public class Order {
 
 	@Id
-	@SequenceGenerator(name="ORDER_ID_GENERATOR", sequenceName="ORDER_SEQ", allocationSize = 1)
-	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="ORDER_ID_GENERATOR")
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int orderId;
 	
 	@Temporal(TemporalType.DATE)
@@ -21,15 +23,25 @@ public class Order {
 	private String orderStatus;
 	@Column(name = "total_price")
 	private float orderPrice;
+
+	@Column(name = "discount")
+	private float discount;
 	
 	// bi-directional many-to-one association to Brand
-			@ManyToOne(cascade = CascadeType.ALL)
+			@ManyToOne()
 			@JoinColumn(name="userId")
 			private User user;
-			
-		public Order() {
-						
-		}
+
+	@OneToMany(mappedBy="orders", cascade = {CascadeType.ALL})
+	private List<OrderItem> orderItems = new ArrayList<>();
+
+	@OneToOne(mappedBy = "order", cascade = CascadeType.REMOVE)
+	@JsonIgnore
+	private Payment payment;
+
+	public Order() {
+
+	}
 
 		public Order(int order_id, Date order_date, String order_status, float order_price, User user) {
 			super();
@@ -79,8 +91,31 @@ public class Order {
 		public void setUser(User user) {
 			this.user = user;
 		}
-		
-		
-		
 
+	public List<OrderItem> getOrderItems() {
+		return orderItems;
+	}
+
+	public void setOrderItems(List<OrderItem> orderItems) {
+		for (var item : orderItems) {
+			item.setOrders(this);
+		}
+		 this.orderItems = orderItems;
+	}
+
+	public float getDiscount() {
+		return discount;
+	}
+
+	public void setDiscount(float discount) {
+		this.discount = discount;
+	}
+
+	public Payment getPayment() {
+		return payment;
+	}
+
+	public void setPayment(Payment payment) {
+		this.payment = payment;
+	}
 }

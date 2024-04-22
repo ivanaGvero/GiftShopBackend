@@ -15,8 +15,7 @@ import jakarta.persistence.*;
 public class Brand {
 
 	@Id
-	@SequenceGenerator(name="BRAND_ID_GENERATOR", sequenceName="BRAND_SEQ", allocationSize = 1)
-	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="BRAND_ID_GENERATOR")
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int brandId;
 	@Column(name="brand_name")
 	private String brandName;

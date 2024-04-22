@@ -1,5 +1,8 @@
 package com.example.demo.controller;
 
+import java.sql.Date;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -20,7 +23,7 @@ import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.model.Order;
 import com.example.demo.repository.OrdersRepository;
 
-@CrossOrigin
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/orders")
 public class OrdersController {
@@ -43,21 +46,22 @@ public class OrdersController {
 	     }
 	 }
     @PostMapping("/orders")
-	public ResponseEntity<Order> createOrders(@RequestBody Order orders) {
-		if(!ordersRepository.existsById(orders.getOrderId())) {
-			ordersRepository.save(orders);
-			return new ResponseEntity<Order>(HttpStatus.OK);
+	public ResponseEntity<Integer> createOrders(@RequestBody Order order) {
+		if(!ordersRepository.existsById(order.getOrderId())) {
+			order.setOrderDate(Date.valueOf(LocalDate.now()));
+			order.setOrderStatus("CREATED");
+			ordersRepository.save(order);
+			return new ResponseEntity<Integer>(order.getOrderId(), HttpStatus.OK);
 		}
-		return new ResponseEntity<Order>(HttpStatus.CONFLICT);
+		return new ResponseEntity<Integer>(HttpStatus.CONFLICT);
 	}
     
     @PutMapping("/orders/{id}")
    	public ResponseEntity<Order> updateOrders(@PathVariable("id") int id, @RequestBody Order newOrders) {
     	Order orders = ordersRepository.findById(id)
    				.orElseThrow(() -> new ResourceNotFoundException("Ne postoji porudzbina sa id: " + id));
-   		orders.setOrderDate(newOrders.getOrderDate());
-   		orders.setOrderStatus(newOrders.getOrderStatus());
-   		orders.setOrderPrice(newOrders.getOrderPrice());
+
+		orders.setOrderStatus(newOrders.getOrderStatus());
    		
    		Order updatedOrders = ordersRepository.save(orders);
    		

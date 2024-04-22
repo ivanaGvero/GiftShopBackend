@@ -18,20 +18,19 @@ import jakarta.persistence.Table;
 public class Review {
 
 	@Id
-	@SequenceGenerator(name="REVIEW_ID_GENERATOR", sequenceName="REVIEW_SEQ", allocationSize = 1)
-	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="REVIEW_ID_GENERATOR")
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int reviewId;
 	
 	private float rating;
 	private String comment;
 	
 	// bi-directional many-to-one association to Brand
-			@ManyToOne(cascade = CascadeType.ALL)
+			@ManyToOne()
 			@JoinColumn(name="userId")
 			private User user;
 			
 	// bi-directional many-to-one association to Brand
-			@ManyToOne(cascade = CascadeType.ALL)
+			@ManyToOne()
 			@JoinColumn(name="productId")
 			private Product product;
 					

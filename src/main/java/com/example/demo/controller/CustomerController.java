@@ -4,11 +4,14 @@ package com.example.demo.controller;
 import java.util.Collection;
 import java.util.Optional;
 
+
+import com.example.demo.model.ERole;
 import com.example.demo.model.User;
-import com.example.demo.repository.AddressRepository;
+//import com.example.demo.repository.AddressRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.demo.exception.ResourceNotFoundException;
@@ -20,14 +23,15 @@ import com.example.demo.repository.CustomerRepository;
 @RequestMapping("/customer")
 public class CustomerController {
     
-    @Autowired
     private final CustomerRepository customerRepository;
-	private final AddressRepository addressRepository;
+	private final PasswordEncoder passwordEncoder;
 
 	public CustomerController(CustomerRepository customerRepository,
-							  AddressRepository addressRepository) {
+							 
+							  PasswordEncoder passwordEncoder) {
 		this.customerRepository = customerRepository;
-		this.addressRepository = addressRepository;
+		
+		this.passwordEncoder = passwordEncoder;
 	}
 
 	@GetMapping("/customer")
@@ -47,12 +51,13 @@ public class CustomerController {
 
 	@PostMapping("/customer")
 	public ResponseEntity<User> postUser(@RequestBody Customer customer){
-		var addressOpt = addressRepository.findById(customer.getAddress().getAddressId());
-		if (addressOpt.isEmpty()) {
-			return new ResponseEntity<User>(HttpStatus.BAD_REQUEST);
-		}
+		if (customer.getUser() == null) {
+	        // Ako objekat User nije postavljen u objektu Customer, vratite HTTP status 400 Bad Request
+	        return new ResponseEntity<User>(HttpStatus.BAD_REQUEST);
+	    }
 
-		customer.setAddress(addressOpt.get());
+		customer.getUser().setPassword(passwordEncoder.encode(customer.getUser().getPassword()));
+		customer.getUser().setRole(ERole.ROLE_CUSTOMER);
 		if (!customerRepository.existsById(customer.getId())) {
 			customerRepository.save(customer);
 			return new ResponseEntity<User>(HttpStatus.OK);
@@ -64,6 +69,9 @@ public class CustomerController {
     public ResponseEntity<Customer> updateCustomer(@PathVariable("id") int id, @RequestBody Customer newCustomer) {		
     	Customer customer = customerRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("Ne postoji kupac sa id: " + id));
+
+		customer.getUser().setName(newCustomer.getUser().getName());
+		customer.getUser().setSurname(newCustomer.getUser().getSurname());
         customer.setPhone(newCustomer.getPhone());
         customer.setAddress(newCustomer.getAddress());
         

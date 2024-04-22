@@ -22,20 +22,20 @@ public class Product implements Serializable {
 
 	
 	@Id
-	@SequenceGenerator(name="PRODUCT_ID_GENERATOR", sequenceName="PRODUCT_SEQ", allocationSize = 1)
-	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="PRODUCT_ID_GENERATOR")
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int productId;
 	@Column(name="name")
 	private String name;
 	private int price;
 	private String description;
 	private int lager;
+	private String image;
 
-	@ManyToOne(cascade = CascadeType.REMOVE)
+	@ManyToOne()
 	@JoinColumn(name="brand_id")
 	private Brand brand;
 
-	@ManyToOne(cascade = CascadeType.REMOVE)
+	@ManyToOne()
 	@JoinColumn(name="category_id")
 	private Category category;
 
@@ -114,6 +114,11 @@ public class Product implements Serializable {
 		this.brand = brand;
 	}
 
+	public String getImage() {
+		return image;
+	}
 
-	
+	public void setImage(String image) {
+		this.image = image;
+	}
 }

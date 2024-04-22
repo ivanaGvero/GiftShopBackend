@@ -13,8 +13,7 @@ import jakarta.persistence.*;
 @Table(name="Category")
 public class Category {
 	@Id
-	@SequenceGenerator(name="CATEGORY_ID_GENERATOR", sequenceName="CATEGORY_SEQ", allocationSize = 1)
-	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="CATEGORY_ID_GENERATOR")
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int categoryId;
 
 	@Column(name="category_name")

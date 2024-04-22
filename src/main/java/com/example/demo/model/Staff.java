@@ -17,7 +17,7 @@ public class Staff {
 
 	private String position;
 
-	@OneToOne
+	@OneToOne(cascade = {CascadeType.ALL})
 	@JoinColumn(name = "userId")
 	private User user;
 	
